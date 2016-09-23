@@ -39,12 +39,25 @@ NextRow:	add		$s6,$s6,$s5			# Move to Next Row End
 			add		$t3,$t3,$s1			# Frame Jump
 			j		WindowLoop
 checkSAD:	
-			slt 	$t1,$s0,$t5		# Check if current SAD is less than existing
-			bne 	$t1,$0,NextWindow
-			addi	$s0,$t5,0
-			# TODO: update v0 and v1
-			addi	$v0,$0,0
-			addi	$v1,$0,0
-			jr      $ra
-			#j		NextWindow
+			slt 	$t1, $s0,$t5		# Check if current SAD is less than existing
+			bne 	$t1, $0, NextWindow 
+			li		$v0,0				# Reset v0
+			li		$v1,0				# Reset v1
+			sub     $t0, $t3,$a1        # Compute Frame offset from starting address
+			srl     $t0, $t0, 4         # covert address offset to integer index
+			lw		$s1,  4($a0)		# Number of Frame Cols
+			sub     $t0, $t0, $s1       # division by subraction
+v0_loop:    
+			slt     $t2, $t0, $0		# if(t0 < 0) t2 = 1 else if(t0 >= 0) t2 = 0
+			bne 	$t2, $0, v0_done    # conitnue loop until t0 <= 0, t2 = 0
+			addi    $v0, $v0, 1			# each column size subracted increments location index
+			sub     $t0, $t0, $s1       # division by subraction
+			j 		v0_loop
+v0_done:	#Done with computing v0 use result to compute v1
+			lw		$s1,  4($a0)		# Number of Frame Cols
+			sub     $t0, $t3,$a1        # Compute Frame offset from starting address
+			srl     $t0, $t0, 4         # covert address offset to integer index
+			mul     $t1, $s1, $v0       # result for v0 used here to compute v1
+			sub     $v1, $t0, $t1       # v1 = (t0, current_index) - (s1, # of columns)*(v0, # of rows)
+			j		NextWindow          # Finished go to next window		
 NextWindow:	# TODO
