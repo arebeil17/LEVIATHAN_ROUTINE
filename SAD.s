@@ -1,4 +1,3 @@
-# Begin subroutine
 vbsme:		
 			#addi    $sp, $sp, -4
 			#sw		$ra, 0($sp)
@@ -20,7 +19,7 @@ vbsme:
 			addi    $s1, $s1,  4        # Frame Jump fix 
 			addi 	$t3,$a1,0			# Current Frame Element
 			addi	$t4,$a2,0			# Current Window Element
-			add		$s6,$a1,$s5			# Frame-Window Row End
+			add		$s6,$a2,$s5			# Frame-Window Row End
 			addi	$s6,$s6,-4
 WindowLoop:	lw		$t1, 0($t3)			# Frame Value
 			lw		$t2, 0($t4)			# Window Value
@@ -31,11 +30,12 @@ WindowLoop:	lw		$t1, 0($t3)			# Frame Value
 			addi	$t9,$t9,1
 gtzero:		add 	$t5,$t5,$t9			# Window SAD Total
 			beq		$t4,$s4,checkSAD	# GoTo checkSAD if at the end of the window			
+			beq		$t4,$s6,NextRow		# Check End of Row
 			addi 	$t4,$t4,4			# Goto Next Window Element	
-			beq		$t3,$s6,NextRow		# Check End of Row
-			addi	$t3,$t3,4			
+			addi	$t3,$t3,4			# Goto Next Frame Element	
 			j 		WindowLoop
 NextRow:	add		$s6,$s6,$s5			# Move to Next Row End
+			addi 	$t4,$t4,4			# Goto Next Window Element	
 			add		$t3,$t3,$s1			# Frame Jump
 			j		WindowLoop
 checkSAD:	
