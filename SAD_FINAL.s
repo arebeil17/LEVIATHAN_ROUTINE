@@ -11,16 +11,15 @@ vbsme:
 			mul		$s4, $s5, $s2		# End of Window Offset
 			addi	$s4, $s4, -4
 			add     $s4, $s4, $a2       # End of Window Address
-			sll     $t7, $t7, 2	        # Frame width offset
-			sll     $t1, $t1, 2         # Window Cols offset
+			sll     $t7, $s1, 2	        # Frame width offset
+			sll     $t1, $s3, 2         # Window Cols offset
 			sub     $t7, $t7, $t1       # Frame width - Window width
 			addi    $t7, $t7, 4         # Frame Jump fix 
-			#addi 	$t3, $a1, 0			# Current Frame Element
+			addi 	$t6, $a1, 0			# Current Frame Element/ Initial Frame Address
 			#addi	$t4, $a2, 0			# Current Window Element
 			add		$t9, $a2, $s5		# Frame-Window Row End
 			addi	$t9, $t9, -4
 			add     $s6,  $0, $0        # Saves Last move of window(INIT: 0, RIGHT: 1, UPR: 2, DWL: 3, DOWN: 4)
-			add	    $t6, $t3, $0        # Saves current initial Frame address before window scan
 SAD_Routine:
 			add		$t9, $a2, $s5		# Frame-Window Row End
 			addi	$t9, $t9, -4
@@ -53,7 +52,7 @@ returnUpdate:
 			srl     $t1, $t1, 2         	# convert address offset to integer index
 IndexLoop:									# Determines the index of the current row
 			slt     $t8, $t1, $s1			# if(t0 < 0) t2 = 1 else if(t0 >= 0) t2 = 0
-			bne		$t8, $0, checkSAD 		# conitnue loop until t0 <= 0, t2 = 0
+			bne		$t8, $0, CheckSAD 		# conitnue loop until t0 <= 0, t2 = 0
 			sub     $t1, $t1, $s1       	# division by subraction
 			addi	$t0, $t0, 1
 			j 		IndexLoop
